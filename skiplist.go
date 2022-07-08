@@ -72,7 +72,7 @@ type SkipList struct {
 	rng          *rand.Rand
 }
 
-func NewRand(rng *rand.Rand, eps float64) SkipList {
+func NewRand(rng *rand.Rand) SkipList {
 	return NewRandEps(rng, eps)
 }
 
