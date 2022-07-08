@@ -77,7 +77,6 @@ func NewRand(rng *rand.Rand) SkipList {
 }
 
 func NewRandEps(rng *rand.Rand, eps float64) SkipList {
-	
 	list := SkipList{
 		startLevels:  [maxLevel]*SkipListElement{},
 		endLevels:    [maxLevel]*SkipListElement{},
@@ -95,16 +94,6 @@ func NewRandEps(rng *rand.Rand, eps float64) SkipList {
 // Given a seed, a deterministic height/list behaviour can be achieved.
 // Eps is used to compare keys given by the ExtractKey() function on equality.
 func NewSeedEps(seed int64, eps float64) SkipList {
-	list := SkipList{
-		startLevels:  [maxLevel]*SkipListElement{},
-		endLevels:    [maxLevel]*SkipListElement{},
-		maxNewLevel:  maxLevel,
-		maxLevel:     0,
-		elementCount: 0,
-		eps:          eps,
-		rng:          rand.New(rand.NewSource(seed)),
-	}
-
 	return NewRandEps(rand.New(rand.NewSource(seed)), eps)
 }
 
