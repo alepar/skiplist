@@ -69,17 +69,15 @@ type SkipList struct {
 	maxLevel     int
 	elementCount int
 	eps          float64
+	rng          *rand.Rand
 }
 
-// NewSeedEps returns a new empty, initialized Skiplist.
-// Given a seed, a deterministic height/list behaviour can be achieved.
-// Eps is used to compare keys given by the ExtractKey() function on equality.
-func NewSeedEps(seed int64, eps float64) SkipList {
+func NewRand(rng *rand.Rand, eps float64) SkipList {
+	return NewRandEps(rng, eps)
+}
 
-	// Initialize random number generator.
-	rand.Seed(seed)
-	//fmt.Printf("SkipList seed: %v\n", seed)
-
+func NewRandEps(rng *rand.Rand, eps float64) SkipList {
+	
 	list := SkipList{
 		startLevels:  [maxLevel]*SkipListElement{},
 		endLevels:    [maxLevel]*SkipListElement{},
@@ -87,9 +85,27 @@ func NewSeedEps(seed int64, eps float64) SkipList {
 		maxLevel:     0,
 		elementCount: 0,
 		eps:          eps,
+		rng:          rng,
 	}
 
 	return list
+}
+
+// NewSeedEps returns a new empty, initialized Skiplist.
+// Given a seed, a deterministic height/list behaviour can be achieved.
+// Eps is used to compare keys given by the ExtractKey() function on equality.
+func NewSeedEps(seed int64, eps float64) SkipList {
+	list := SkipList{
+		startLevels:  [maxLevel]*SkipListElement{},
+		endLevels:    [maxLevel]*SkipListElement{},
+		maxNewLevel:  maxLevel,
+		maxLevel:     0,
+		elementCount: 0,
+		eps:          eps,
+		rng:          rand.New(rand.NewSource(seed)),
+	}
+
+	return NewRandEps(rand.New(rand.NewSource(seed)), eps)
 }
 
 // NewEps returns a new empty, initialized Skiplist.
@@ -118,13 +134,17 @@ func (t *SkipList) generateLevel(maxLevel int) int {
 	level := maxLevel - 1
 	// First we apply some mask which makes sure that we don't get a level
 	// above our desired level. Then we find the first set bit.
-	var x uint64 = rand.Uint64() & ((1 << uint(maxLevel-1)) - 1)
+	var x uint64 = t.randUint64() & ((1 << uint(maxLevel-1)) - 1)
 	zeroes := bits.TrailingZeros64(x)
 	if zeroes <= maxLevel {
 		level = zeroes
 	}
 
 	return level
+}
+
+func (t *SkipList) randUint64() uint64 {
+	return t.rng.Uint64()
 }
 
 func (t *SkipList) findEntryIndex(key float64, level int) int {
